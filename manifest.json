@@ -1,0 +1,11 @@
+{
+    "name": "鞋店管理",
+    "short_name": "鞋店",
+    "icons": [{
+      "src": "icon.png",
+        "sizes": "256x256",
+        "type": "image/png"
+      }],
+    "start_url": "/index.html",
+    "display": "standalone"
+  }

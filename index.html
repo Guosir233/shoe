@@ -1,0 +1,1409 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>鞋店管理系统</title>
+    <style>
+        :root {
+            --primary: #5d5fef;
+            --secondary: #6c757d;
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --radius: 8px;
+            --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background: #f5f5f5; color: #333; line-height: 1.6; padding-bottom: 80px; }
+        .container { max-width: 100%; padding: 0 15px; margin: 0 auto; }
+        
+        header { 
+            background: var(--primary); 
+            color: white; 
+            padding: 15px 0; 
+            text-align: center; 
+            position: sticky; 
+            top: 0; 
+            z-index: 100; 
+            box-shadow: var(--shadow); 
+        }
+        
+        h1 { font-size: 1.5rem; font-weight: 600; }
+        main { padding: 20px 0; min-height: calc(100vh - 120px); }
+        
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        .card {
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .card-title { font-size: 1.1rem; font-weight: 600; color: var(--primary); }
+        
+        .btn {
+            display: inline-block;
+            padding: 8px 16px;
+            border: none;
+            border-radius: var(--radius);
+            background: var(--primary);
+            color: white;
+            font-size: 0.9rem;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover { opacity: 0.9; transform: translateY(-1px); }
+        .btn-sm { padding: 5px 10px; font-size: 0.8rem; }
+        .btn-danger { background: var(--danger); }
+        .btn-success { background: var(--success); }
+        .btn-warning { background: var(--warning); color: var(--dark); }
+        
+        .form-group { margin-bottom: 15px; }
+        .form-label { display: block; margin-bottom: 5px; font-weight: 500; }
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: var(--radius);
+            font-size: 1rem;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(93, 95, 239, 0.2);
+        }
+        
+        select.form-control {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 1em;
+        }
+        
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--secondary);
+            text-decoration: none;
+            font-size: 0.8rem;
+            padding: 5px 10px;
+            transition: all 0.3s;
+        }
+        
+        .nav-item i { font-size: 1.2rem; margin-bottom: 3px; }
+        .nav-item.active { color: var(--primary); }
+        
+        .product-card {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 15px;
+        }
+        
+        .product-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .product-name { font-weight: 600; }
+        .product-color {
+            padding: 2px 8px;
+            border-radius: 12px;
+            background: #f0f0f0;
+            font-size: 0.8rem;
+        }
+        
+        .product-price {
+            font-weight: 600;
+            color: var(--primary);
+            margin-top: 5px;
+        }
+        
+        .sizes-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .size-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 5px 10px;
+            background: var(--light);
+            border-radius: var(--radius);
+            min-width: 50px;
+        }
+        
+        .size-label { font-size: 0.8rem; color: var(--secondary); }
+        .size-quantity { font-weight: 600; }
+        
+        .filter-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .filter-item { flex: 1; min-width: 120px; }
+        
+        .order-card {
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+        
+        .order-header {
+            background: var(--light);
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .order-info { display: flex; justify-content: space-between; align-items: center; }
+        .order-date { font-size: 0.9rem; color: var(--secondary); }
+        .order-status {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            background: var(--success);
+            color: white;
+        }
+        
+        .order-body { padding: 15px; }
+        
+        .product-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px dashed #eee;
+        }
+        
+        .product-item:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+        
+        .product-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--light);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-size: 1.2rem;
+        }
+        
+        .product-details { flex: 1; }
+        .product-title { font-weight: 500; font-size: 0.95rem; }
+        .product-meta { font-size: 0.85rem; color: var(--secondary); }
+        .product-price { font-weight: 600; color: var(--primary); }
+        
+        .order-footer {
+            border-top: 1px solid #eee;
+            padding: 12px 15px;
+            background: var(--light);
+        }
+        
+        .order-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .total-label { font-weight: 600; }
+        .total-amount { font-size: 1.2rem; font-weight: 600; color: var(--primary); }
+        
+        .order-actions { display: flex; gap: 10px; }
+        .order-actions .btn { flex: 1; }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: var(--radius);
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: modalFadeIn 0.3s;
+        }
+        
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .modal-header {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-title { font-size: 1.2rem; font-weight: 600; }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--secondary);
+        }
+        
+        .modal-body { padding: 15px; }
+        .modal-footer {
+            padding: 15px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        .size-inputs-container {
+            margin-bottom: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+        
+        .size-input-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+        
+        .size-input-row input { flex: 2; min-width: 80px; }
+        .size-input-row .remove-size-btn {
+            flex: 0 0 40px;
+            width: 40px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            line-height: 1;
+        }
+        
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .order-item:last-child { border-bottom: none; }
+        .order-item-info { display: flex; flex-direction: column; }
+        .order-item-actions { display: flex; align-items: center; gap: 5px; }
+        
+        .stats-card {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            padding: 15px;
+        }
+        
+        .stat-item {
+            background: var(--light);
+            padding: 15px;
+            border-radius: var(--radius);
+            text-align: center;
+        }
+        
+        .stat-value { font-size: 1.5rem; font-weight: 600; color: var(--primary); }
+        .stat-label { font-size: 0.9rem; color: var(--secondary); }
+        
+        .chart-container {
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .chart-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .chart-bar {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .chart-label {
+            width: 100px;
+            font-size: 0.9rem;
+            text-align: right;
+            padding-right: 10px;
+        }
+        
+        .chart-value-bar {
+            flex: 1;
+            height: 25px;
+            background: var(--primary);
+            border-radius: 4px;
+            position: relative;
+            transition: width 0.5s ease;
+        }
+        
+        .chart-value-text {
+            position: absolute;
+            right: 10px;
+            color: white;
+            font-size: 0.8rem;
+            line-height: 25px;
+        }
+        
+        @media (min-width: 768px) {
+            .container { max-width: 750px; }
+            .product-card { flex-direction: row; justify-content: space-between; align-items: center; }
+            .product-info { margin-bottom: 0; width: 40%; }
+            .sizes-container { width: 60%; justify-content: flex-end; }
+            .stats-card { grid-template-columns: repeat(4, 1fr); }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <h1>鞋店管理系统</h1>
+        </div>
+    </header>
+
+    <main class="container">
+        <div id="inventory-tab" class="tab-content active">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">库存管理</div>
+                    <button id="add-product-btn" class="btn btn-success">添加产品</button>
+                </div>
+                <div class="filter-container">
+                    <div class="filter-item form-group">
+                        <label for="filter-brand" class="form-label">品牌</label>
+                        <select id="filter-brand" class="form-control">
+                            <option value="">全部品牌</option>
+                        </select>
+                    </div>
+                    <div class="filter-item form-group">
+                        <label for="filter-code" class="form-label">产品编号</label>
+                        <select id="filter-code" class="form-control" disabled>
+                            <option value="">请先选择品牌</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="inventory-list"></div>
+            </div>
+        </div>
+
+        <div id="orders-tab" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">订单管理</div>
+                    <button id="add-order-btn" class="btn btn-success">新建订单</button>
+                </div>
+                <div class="filter-container">
+                    <div class="filter-item form-group">
+                        <label for="orders-start-date" class="form-label">开始日期</label>
+                        <input type="date" id="orders-start-date" class="form-control">
+                    </div>
+                    <div class="filter-item form-group">
+                        <label for="orders-end-date" class="form-label">结束日期</label>
+                        <input type="date" id="orders-end-date" class="form-control">
+                    </div>
+                    <div class="filter-item form-group">
+                        <label class="form-label">&nbsp;</label>
+                        <button id="apply-orders-filter" class="btn">应用筛选</button>
+                    </div>
+                </div>
+                <div id="orders-list"></div>
+            </div>
+        </div>
+
+        <div id="stats-tab" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">销售统计</div>
+                </div>
+                <div class="filter-container">
+                    <div class="filter-item form-group">
+                        <label for="stats-start-date" class="form-label">开始日期</label>
+                        <input type="date" id="stats-start-date" class="form-control">
+                    </div>
+                    <div class="filter-item form-group">
+                        <label for="stats-end-date" class="form-label">结束日期</label>
+                        <input type="date" id="stats-end-date" class="form-control">
+                    </div>
+                    <div class="filter-item form-group">
+                        <label class="form-label">&nbsp;</label>
+                        <button id="apply-stats-filter" class="btn">应用筛选</button>
+                    </div>
+                </div>
+                <div id="stats-container" class="stats-card">
+                    <div class="stat-item">
+                        <div class="stat-value" id="total-sales">¥0</div>
+                        <div class="stat-label">总销售额</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="total-orders">0</div>
+                        <div class="stat-label">订单数量</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="avg-order-value">¥0</div>
+                        <div class="stat-label">平均订单额</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="inventory-value">¥0</div>
+                        <div class="stat-label">库存价值</div>
+                    </div>
+                </div>
+                <div id="brand-chart" class="chart-container">
+                    <div class="chart-title">品牌销售排行</div>
+                    <div id="brand-chart-bars"></div>
+                </div>
+                <div id="size-chart" class="chart-container">
+                    <div class="chart-title">尺码销售分布</div>
+                    <div id="size-chart-bars"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <nav class="bottom-nav">
+        <a href="#" class="nav-item active" data-tab="inventory-tab">
+            <span>📦</span>
+            <span>库存</span>
+        </a>
+        <a href="#" class="nav-item" data-tab="orders-tab">
+            <span>📝</span>
+            <span>订单</span>
+        </a>
+        <a href="#" class="nav-item" data-tab="stats-tab">
+            <span>📊</span>
+            <span>统计</span>
+        </a>
+    </nav>
+
+    <div id="product-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" id="product-modal-title">添加新产品</div>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="product-form">
+                    <input type="hidden" id="product-id">
+                    <div class="form-group">
+                        <label for="product-brand" class="form-label">品牌</label>
+                        <input type="text" id="product-brand" class="form-control" required placeholder="请输入品牌名称">
+                    </div>
+                    <div class="form-group">
+                        <label for="product-code" class="form-label">产品编号</label>
+                        <input type="text" id="product-code" class="form-control" required placeholder="请输入产品编号">
+                    </div>
+                    <div class="form-group">
+                        <label for="product-color" class="form-label">颜色</label>
+                        <input type="text" id="product-color" class="form-control" required placeholder="请输入颜色">
+                    </div>
+                    <div class="form-group">
+                        <label for="product-price" class="form-label">价格</label>
+                        <input type="number" id="product-price" class="form-control" required min="0" step="1" placeholder="请输入价格">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">尺码库存</label>
+                        <div id="size-inputs-container"></div>
+                        <button type="button" id="add-size-btn" class="btn" style="margin-top: 10px; width: 100%;">+ 添加尺码</button>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn modal-close-btn">取消</button>
+                <button id="save-product-btn" class="btn btn-success">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="order-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" id="order-modal-title">新建订单</div>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="order-form">
+                    <input type="hidden" id="order-id">
+                    <div class="form-group">
+                        <label class="form-label">添加商品</label>
+                        <div class="filter-container">
+                            <div class="filter-item form-group">
+                                <select id="order-brand" class="form-control">
+                                    <option value="">选择品牌</option>
+                                </select>
+                            </div>
+                            <div class="filter-item form-group">
+                                <select id="order-code" class="form-control" disabled>
+                                    <option value="">选择编号</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="filter-container">
+                            <div class="filter-item form-group">
+                                <select id="order-color" class="form-control" disabled>
+                                    <option value="">选择颜色</option>
+                                </select>
+                            </div>
+                            <div class="filter-item form-group">
+                                <select id="order-size" class="form-control" disabled>
+                                    <option value="">选择尺码</option>
+                                </select>
+                            </div>
+                            <div class="filter-item form-group">
+                                <button type="button" id="add-to-order-btn" class="btn" disabled>添加</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">订单商品</label>
+                        <div id="order-items-list"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="order-amount" class="form-label">支付金额</label>
+                        <input type="number" id="order-amount" class="form-control" required min="0" step="1">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn modal-close-btn">取消</button>
+                <button id="save-order-btn" class="btn btn-success">完成订单</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.addEventListener('load', async e => {
+            if ('serviceWorker' in navigator) {
+                try {
+                    navigator.serviceWorker.register('/sw.js');
+                    console.log('SW registered');
+
+                } catch (error) {
+                    console.log('SW failed');
+
+                }
+            }
+        });
+        // 数据管理类
+        class DataManager {
+            constructor() {
+                this.products = this.loadFromStorage('products') || [];
+                this.orders = this.loadFromStorage('orders') || [];
+            }
+
+            loadFromStorage(key) {
+                const data = localStorage.getItem(key);
+                return data ? JSON.parse(data) : null;
+            }
+
+            saveToStorage(key, data) {
+                localStorage.setItem(key, JSON.stringify(data));
+            }
+
+            saveProducts() {
+                this.saveToStorage('products', this.products);
+            }
+
+            saveOrders() {
+                this.saveToStorage('orders', this.orders);
+            }
+
+            getNextProductId() {
+                return this.products.length > 0 ? Math.max(...this.products.map(p => p.id)) + 1 : 1;
+            }
+
+            getNextOrderId() {
+                return this.orders.length > 0 ? Math.max(...this.orders.map(o => o.id)) + 1 : 1;
+            }
+
+            getAllBrands() {
+                return [...new Set(this.products.map(p => p.brand))].sort();
+            }
+
+            getProductsByBrand(brand) {
+                return this.products.filter(p => p.brand === brand);
+            }
+
+            getProductById(id) {
+                return this.products.find(p => p.id === id);
+            }
+
+            getOrderById(id) {
+                return this.orders.find(o => o.id === id);
+            }
+
+            addProduct(product) {
+                this.products.push(product);
+                this.saveProducts();
+            }
+
+            updateProduct(id, updatedProduct) {
+                const index = this.products.findIndex(p => p.id === id);
+                if (index !== -1) {
+                    this.products[index] = { ...this.products[index], ...updatedProduct };
+                    this.saveProducts();
+                }
+            }
+
+            deleteProduct(id) {
+                const index = this.products.findIndex(p => p.id === id);
+                if (index !== -1) {
+                    this.products.splice(index, 1);
+                    this.saveProducts();
+                }
+            }
+
+            addOrder(order) {
+                this.orders.push(order);
+                this.saveOrders();
+            }
+
+            updateOrder(id, updatedOrder) {
+                const index = this.orders.findIndex(o => o.id === id);
+                if (index !== -1) {
+                    this.orders[index] = { ...this.orders[index], ...updatedOrder };
+                    this.saveOrders();
+                }
+            }
+
+            deleteOrder(id) {
+                const index = this.orders.findIndex(o => o.id === id);
+                if (index !== -1) {
+                    this.orders.splice(index, 1);
+                    this.saveOrders();
+                }
+            }
+        }
+
+        // 初始化数据管理器
+        const dataManager = new DataManager();
+
+        // DOM元素
+        const $ = id => document.getElementById(id);
+        const $$ = selector => document.querySelectorAll(selector);
+
+        let currentProductId = null;
+        let currentOrderId = null;
+        let orderItems = [];
+        let originalOrderItems = [];
+
+        // 通用函数
+        function createElement(tag, className, innerHTML = '') {
+            const element = document.createElement(tag);
+            if (className) element.className = className;
+            if (innerHTML) element.innerHTML = innerHTML;
+            return element;
+        }
+
+        function showModal(modalId) {
+            $(modalId).style.display = 'flex';
+        }
+
+        function hideModal(modalId) {
+            $(modalId).style.display = 'none';
+        }
+
+        function filterProducts(brandFilter, codeFilter) {
+            let filtered = [...dataManager.products];
+            if (brandFilter) filtered = filtered.filter(p => p.brand === brandFilter);
+            if (codeFilter) filtered = filtered.filter(p => p.code === codeFilter);
+            return filtered;
+        }
+
+        function renderSelect(selectElement, options, defaultOption) {
+            selectElement.innerHTML = `<option value="">${defaultOption}</option>`;
+            options.forEach(option => {
+                selectElement.innerHTML += `<option value="${option}">${option}</option>`;
+            });
+        }
+
+        // 更新品牌选择框
+        function updateBrandSelects() {
+            const brands = dataManager.getAllBrands();
+            renderSelect($('filter-brand'), brands, '全部品牌');
+            renderSelect($('order-brand'), brands, '选择品牌');
+        }
+
+        // 日期筛选函数
+        function filterByDateRange(items, startDate, endDate, dateField = 'date') {
+            if (!startDate && !endDate) return items;
+            
+            const start = startDate ? new Date(startDate).setHours(0, 0, 0, 0) : null;
+            const end = endDate ? new Date(endDate).setHours(23, 59, 59, 999) : null;
+            
+            return items.filter(item => {
+                const itemDate = new Date(item[dateField]).getTime();
+                if (start && end) return itemDate >= start && itemDate <= end;
+                if (start) return itemDate >= start;
+                if (end) return itemDate <= end;
+                return true;
+            });
+        }
+
+        // 库存管理函数
+        function updateInventory(productId, size, quantity) {
+            const product = dataManager.getProductById(productId);
+            if (product && product.sizes[size] !== undefined) {
+                product.sizes[size] = Math.max(0, product.sizes[size] + quantity);
+                dataManager.updateProduct(productId, product);
+            }
+        }
+
+        function restoreInventory(items) {
+            items.forEach(item => {
+                updateInventory(item.productId, item.size, 1);
+            });
+        }
+
+        function deductInventory(items) {
+            items.forEach(item => {
+                updateInventory(item.productId, item.size, -1);
+            });
+        }
+
+        // 计算统计数据
+        function calculateStats(startDate, endDate) {
+            const filteredOrders = filterByDateRange(dataManager.orders, startDate, endDate);
+            const totalSales = filteredOrders.reduce((sum, order) => sum + order.amount, 0);
+            const totalOrders = filteredOrders.length;
+            const avgOrderValue = totalOrders > 0 ? totalSales / totalOrders : 0;
+            
+            // 品牌销售统计
+            const brandSales = {};
+            filteredOrders.forEach(order => {
+                order.items.forEach(item => {
+                    brandSales[item.brand] = (brandSales[item.brand] || 0) + item.price;
+                });
+            });
+            
+            // 尺码销售统计
+            const sizeSales = {};
+            filteredOrders.forEach(order => {
+                order.items.forEach(item => {
+                    sizeSales[item.size] = (sizeSales[item.size] || 0) + 1;
+                });
+            });
+            
+            // 计算库存价值
+            const inventoryValue = dataManager.products.reduce((sum, product) => {
+                const totalQuantity = Object.values(product.sizes).reduce((a, b) => a + b, 0);
+                return sum + (totalQuantity * product.price);
+            }, 0);
+            
+            return { totalSales, totalOrders, avgOrderValue, inventoryValue, brandSales, sizeSales };
+        }
+
+        // 渲染统计数据
+        function renderStats(startDate, endDate) {
+            const stats = calculateStats(startDate, endDate);
+            $('total-sales').textContent = `¥${stats.totalSales}`;
+            $('total-orders').textContent = stats.totalOrders;
+            $('avg-order-value').textContent = `¥${Math.round(stats.avgOrderValue)}`;
+            $('inventory-value').textContent = `¥${stats.inventoryValue}`;
+            
+            // 渲染品牌销售排行图表
+            renderChart('brand-chart-bars', stats.brandSales);
+            
+            // 渲染尺码销售分布图表
+            renderChart('size-chart-bars', stats.sizeSales);
+        }
+
+        // 渲染图表
+        function renderChart(containerId, data) {
+            const container = $(containerId);
+            container.innerHTML = '';
+            
+            const sortedData = Object.entries(data).sort((a, b) => b[1] - a[1]);
+            const maxValue = Math.max(...Object.values(data));
+            
+            sortedData.forEach(([label, value]) => {
+                const percentage = maxValue > 0 ? (value / maxValue) * 100 : 0;
+                const bar = createElement('div', 'chart-bar');
+                bar.innerHTML = `
+                    <div class="chart-label">${label}</div>
+                    <div class="chart-value-bar" style="width: ${percentage}%">
+                        <div class="chart-value-text">${containerId.includes('brand') ? `¥${value}` : value}</div>
+                    </div>
+                `;
+                container.appendChild(bar);
+            });
+        }
+
+        // 渲染库存列表
+        function renderInventoryList() {
+            const filteredProducts = filterProducts($('filter-brand').value, $('filter-code').value);
+            const inventoryList = $('inventory-list');
+            inventoryList.innerHTML = '';
+
+            if (filteredProducts.length === 0) {
+                inventoryList.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--secondary);">没有找到匹配的产品</div>';
+                return;
+            }
+
+            filteredProducts.forEach(product => {
+                const card = createElement('div', 'product-card');
+                
+                const info = createElement('div', 'product-info', `
+                    <div>
+                        <div class="product-name">${product.brand} - ${product.code}</div>
+                        <span class="product-color">${product.color}</span>
+                        <div class="product-price">¥${product.price}</div>
+                    </div>
+                    <div>
+                        <button class="btn btn-sm btn-warning edit-product-btn" data-id="${product.id}">编辑</button>
+                        <button class="btn btn-sm btn-danger delete-product-btn" data-id="${product.id}">删除</button>
+                    </div>
+                `);
+
+                const sizes = createElement('div', 'sizes-container');
+                Object.entries(product.sizes).forEach(([size, quantity]) => {
+                    sizes.innerHTML += `
+                        <div class="size-item">
+                            <span class="size-label">${size}</span>
+                            <span class="size-quantity">${quantity}</span>
+                        </div>
+                    `;
+                });
+
+                card.appendChild(info);
+                card.appendChild(sizes);
+                inventoryList.appendChild(card);
+
+                card.querySelector('.edit-product-btn').addEventListener('click', () => editProduct(product.id));
+                card.querySelector('.delete-product-btn').addEventListener('click', () => deleteProduct(product.id));
+            });
+        }
+
+        // 渲染订单列表
+        function renderOrdersList(startDate, endDate) {
+            const filteredOrders = filterByDateRange(dataManager.orders, startDate, endDate);
+            const ordersList = $('orders-list');
+            ordersList.innerHTML = '';
+
+            if (filteredOrders.length === 0) {
+                ordersList.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--secondary);">没有找到匹配的订单</div>';
+                return;
+            }
+
+            filteredOrders.forEach(order => {
+                const card = createElement('div', 'order-card');
+                
+                let productsHTML = '';
+                order.items.forEach(item => {
+                    productsHTML += `
+                        <div class="product-item">
+                            <div class="product-icon">👟</div>
+                            <div class="product-details">
+                                <div class="product-title">${item.brand} - ${item.code}</div>
+                                <div class="product-meta">${item.color} / ${item.size}码</div>
+                            </div>
+                            <div class="product-price">¥${item.price}</div>
+                        </div>
+                    `;
+                });
+
+                card.innerHTML = `
+                    <div class="order-header">
+                        <div class="order-info">
+                            <span class="order-date">${order.date}</span>
+                            <span class="order-status">已完成</span>
+                        </div>
+                    </div>
+                    <div class="order-body">${productsHTML}</div>
+                    <div class="order-footer">
+                        <div class="order-total">
+                            <span class="total-label">总计</span>
+                            <span class="total-amount">¥${order.amount}</span>
+                        </div>
+                        <div class="order-actions">
+                            <button class="btn btn-warning edit-order-btn" data-id="${order.id}">编辑</button>
+                            <button class="btn btn-danger delete-order-btn" data-id="${order.id}">删除</button>
+                        </div>
+                    </div>
+                `;
+
+                ordersList.appendChild(card);
+                card.querySelector('.edit-order-btn').addEventListener('click', () => editOrder(order.id));
+                card.querySelector('.delete-order-btn').addEventListener('click', () => deleteOrder(order.id));
+            });
+        }
+
+        // 添加尺码行
+        function addSizeRow(size = '', quantity = 0) {
+            const row = createElement('div', 'size-input-row');
+            row.innerHTML = `
+                <input type="text" class="form-control size-input" placeholder="尺码" value="${size}">
+                <input type="number" class="form-control quantity-input" placeholder="库存" min="0" value="${quantity}">
+                <button class="btn btn-danger remove-size-btn">×</button>
+            `;
+
+            row.querySelector('.remove-size-btn').addEventListener('click', () => {
+                row.remove();
+                if ($('size-inputs-container').children.length === 0) addSizeRow();
+            });
+
+            $('size-inputs-container').appendChild(row);
+        }
+
+        // 编辑产品
+        function editProduct(id) {
+            const product = dataManager.getProductById(id);
+            if (!product) return;
+
+            currentProductId = id;
+            $('product-modal-title').textContent = '编辑产品';
+            $('product-brand').value = product.brand;
+            $('product-code').value = product.code;
+            $('product-color').value = product.color;
+            $('product-price').value = product.price;
+
+            $('size-inputs-container').innerHTML = '';
+            Object.entries(product.sizes).forEach(([size, quantity]) => addSizeRow(size, quantity));
+            if ($('size-inputs-container').children.length === 0) addSizeRow();
+
+            showModal('product-modal');
+        }
+
+        // 删除产品
+        function deleteProduct(id) {
+            if (confirm('确定要删除这个产品吗？')) {
+                dataManager.deleteProduct(id);
+                renderInventoryList();
+                updateBrandSelects();
+            }
+        }
+
+        // 保存产品
+        function saveProduct() {
+            const brand = $('product-brand').value.trim();
+            const code = $('product-code').value.trim();
+            const color = $('product-color').value.trim();
+            const price = parseInt($('product-price').value);
+
+            if (!brand || !code || !color || isNaN(price) || price < 0) {
+                alert('请填写所有必填字段，并确保价格有效');
+                return;
+            }
+
+            const sizes = {};
+            let hasValidSize = false;
+
+            $$('.size-input-row').forEach(row => {
+                const size = row.querySelector('.size-input').value.trim();
+                const quantity = parseInt(row.querySelector('.quantity-input').value);
+
+                if (size && !isNaN(quantity) && quantity >= 0) {
+                    sizes[size] = quantity;
+                    hasValidSize = true;
+                }
+            });
+
+            if (!hasValidSize) {
+                alert('至少需要一个有效的尺码和库存数量');
+                return;
+            }
+
+            if (currentProductId) {
+                dataManager.updateProduct(currentProductId, { brand, code, color, price, sizes });
+            } else {
+                const newProduct = {
+                    id: dataManager.getNextProductId(),
+                    brand,
+                    code,
+                    color,
+                    price,
+                    sizes
+                };
+                dataManager.addProduct(newProduct);
+            }
+
+            renderInventoryList();
+            updateBrandSelects();
+            hideModal('product-modal');
+        }
+
+        // 编辑订单
+        function editOrder(id) {
+            const order = dataManager.getOrderById(id);
+            if (!order) return;
+
+            currentOrderId = id;
+            originalOrderItems = [...order.items];
+            orderItems = [...order.items];
+            $('order-modal-title').textContent = '编辑订单';
+            $('order-amount').value = order.amount;
+
+            resetOrderSelectors();
+            renderOrderItems();
+            showModal('order-modal');
+        }
+
+        // 删除订单
+        function deleteOrder(id) {
+            if (confirm('确定要删除这个订单吗？')) {
+                const order = dataManager.getOrderById(id);
+                if (order) {
+                    restoreInventory(order.items);
+                    dataManager.deleteOrder(id);
+                    renderOrdersList();
+                    renderInventoryList();
+                }
+            }
+        }
+
+        // 保存订单
+        function saveOrder() {
+            const amount = parseInt($('order-amount').value);
+
+            if (isNaN(amount) || amount <= 0) {
+                alert('请输入有效的支付金额');
+                return;
+            }
+
+            if (orderItems.length === 0) {
+                alert('订单中至少需要一件商品');
+                return;
+            }
+
+            const now = new Date();
+            const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+            if (currentOrderId) {
+                restoreInventory(originalOrderItems);
+                deductInventory(orderItems);
+                dataManager.updateOrder(currentOrderId, { items: [...orderItems], amount });
+            } else {
+                deductInventory(orderItems);
+                const newOrder = {
+                    id: dataManager.getNextOrderId(),
+                    date: dateStr,
+                    items: [...orderItems],
+                    amount
+                };
+                dataManager.addOrder(newOrder);
+            }
+
+            renderOrdersList();
+            renderInventoryList();
+            renderStats(); // 更新统计数据
+            hideModal('order-modal');
+        }
+
+        // 更新选择框选项
+        function updateSelectOptions(brand = '', code = '', color = '') {
+            const filteredProducts = filterProducts(brand, code);
+            
+            if (brand) {
+                const codes = [...new Set(filteredProducts.map(p => p.code))];
+                renderSelect($('order-code'), codes, '选择编号');
+                $('order-code').disabled = false;
+                $('order-code').value = code;
+            } else {
+                $('order-code').innerHTML = '<option value="">选择编号</option>';
+                $('order-code').disabled = true;
+                $('order-code').value = '';
+            }
+
+            if (brand && code) {
+                const colors = [...new Set(filteredProducts.filter(p => p.code === code).map(p => p.color))];
+                renderSelect($('order-color'), colors, '选择颜色');
+                $('order-color').disabled = false;
+                $('order-color').value = color;
+            } else {
+                $('order-color').innerHTML = '<option value="">选择颜色</option>';
+                $('order-color').disabled = true;
+                $('order-color').value = '';
+            }
+
+            if (brand && code && color) {
+                const product = dataManager.products.find(p => p.brand === brand && p.code === code && p.color === color);
+                if (product) {
+                    const sizes = Object.keys(product.sizes).filter(size => product.sizes[size] > 0);
+                    renderSelect($('order-size'), sizes, '选择尺码');
+                    $('order-size').disabled = false;
+                    $('add-to-order-btn').disabled = sizes.length === 0;
+                } else {
+                    $('order-size').innerHTML = '<option value="">选择尺码</option>';
+                    $('order-size').disabled = true;
+                    $('add-to-order-btn').disabled = true;
+                }
+            } else {
+                $('order-size').innerHTML = '<option value="">选择尺码</option>';
+                $('order-size').disabled = true;
+                $('add-to-order-btn').disabled = true;
+            }
+        }
+
+        // 添加商品到订单
+        function addItemToOrder() {
+            const brand = $('order-brand').value;
+            const code = $('order-code').value;
+            const color = $('order-color').value;
+            const size = $('order-size').value;
+
+            if (!brand || !code || !color || !size) {
+                alert('请选择完整的商品信息');
+                return;
+            }
+
+            const product = dataManager.products.find(p => p.brand === brand && p.code === code && p.color === color);
+            if (!product || product.sizes[size] <= 0) {
+                alert('库存不足');
+                return;
+            }
+
+            if (orderItems.some(item => item.brand === brand && item.code === code && item.color === color && item.size === size)) {
+                alert('该商品已添加到订单中');
+                return;
+            }
+
+            orderItems.push({ productId: product.id, brand, code, color, size, price: product.price });
+            renderOrderItems();
+            resetOrderSelectors();
+        }
+
+        // 渲染订单商品列表
+        function renderOrderItems() {
+            const orderItemsList = $('order-items-list');
+            orderItemsList.innerHTML = '';
+
+            if (orderItems.length === 0) {
+                orderItemsList.innerHTML = '<div style="text-align: center; padding: 10px; color: var(--secondary);">暂无商品</div>';
+                $('order-amount').value = '';
+                return;
+            }
+
+            let totalAmount = 0;
+            orderItems.forEach((item, index) => {
+                totalAmount += item.price;
+                const itemElement = createElement('div', 'order-item', `
+                    <div class="order-item-info">
+                        <div>${item.brand} - ${item.code} (${item.color}, ${item.size}码)</div>
+                        <div>¥${item.price}</div>
+                    </div>
+                    <div class="order-item-actions">
+                        <button class="btn btn-sm btn-danger remove-item-btn" data-index="${index}">删除</button>
+                    </div>
+                `);
+                orderItemsList.appendChild(itemElement);
+
+                itemElement.querySelector('.remove-item-btn').addEventListener('click', () => {
+                    orderItems.splice(index, 1);
+                    renderOrderItems();
+                });
+            });
+
+            $('order-amount').value = totalAmount;
+        }
+
+        // 重置订单选择框
+        function resetOrderSelectors() {
+            $('order-brand').value = '';
+            $('order-code').innerHTML = '<option value="">选择编号</option>';
+            $('order-code').disabled = true;
+            $('order-code').value = '';
+            $('order-color').innerHTML = '<option value="">选择颜色</option>';
+            $('order-color').disabled = true;
+            $('order-color').value = '';
+            $('order-size').innerHTML = '<option value="">选择尺码</option>';
+            $('order-size').disabled = true;
+            $('order-size').value = '';
+            $('add-to-order-btn').disabled = true;
+        }
+
+        // 初始化应用
+        function initApp() {
+            // 导航切换
+            $$('.nav-item').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const tabId = item.getAttribute('data-tab');
+                    $$('.nav-item').forEach(nav => nav.classList.remove('active'));
+                    item.classList.add('active');
+                    $$('.tab-content').forEach(content => content.classList.remove('active'));
+                    $(tabId).classList.add('active');
+                    
+                    // 切换到统计页面时刷新数据
+                    if (tabId === 'stats-tab') {
+                        renderStats($('stats-start-date').value, $('stats-end-date').value);
+                    }
+                });
+            });
+
+            // 品牌筛选
+            $('filter-brand').addEventListener('change', () => {
+                const brand = $('filter-brand').value;
+                if (brand) {
+                    const codes = [...new Set(dataManager.products.filter(p => p.brand === brand).map(p => p.code))];
+                    renderSelect($('filter-code'), codes, '全部编号');
+                    $('filter-code').disabled = false;
+                } else {
+                    $('filter-code').innerHTML = '<option value="">请先选择品牌</option>';
+                    $('filter-code').disabled = true;
+                }
+                renderInventoryList();
+            });
+
+            $('filter-code').addEventListener('change', renderInventoryList);
+
+            // 订单筛选
+            $('apply-orders-filter').addEventListener('click', () => {
+                const startDate = $('orders-start-date').value;
+                const endDate = $('orders-end-date').value;
+                renderOrdersList(startDate, endDate);
+            });
+
+            // 统计筛选
+            $('apply-stats-filter').addEventListener('click', () => {
+                const startDate = $('stats-start-date').value;
+                const endDate = $('stats-end-date').value;
+                renderStats(startDate, endDate);
+            });
+
+            // 模态框
+            $('add-product-btn').addEventListener('click', () => {
+                currentProductId = null;
+                $('product-modal-title').textContent = '添加新产品';
+                $('product-form').reset();
+                $('size-inputs-container').innerHTML = '';
+                addSizeRow();
+                showModal('product-modal');
+            });
+
+            $('add-order-btn').addEventListener('click', () => {
+                currentOrderId = null;
+                orderItems = [];
+                originalOrderItems = [];
+                $('order-modal-title').textContent = '新建订单';
+                $('order-form').reset();
+                $('order-items-list').innerHTML = '';
+                updateBrandSelects();
+                resetOrderSelectors();
+                showModal('order-modal');
+            });
+
+            $$('.modal-close, .modal-close-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const orderModal = $('order-modal');
+                    if (orderModal.style.display === 'flex' && originalOrderItems.length > 0) {
+                        const newItems = orderItems.filter(item => 
+                            !originalOrderItems.some(orig => 
+                                orig.productId === item.productId && 
+                                orig.size === item.size &&
+                                orig.color === item.color
+                            )
+                        );
+                        restoreInventory(newItems);
+                    }
+                    
+                    hideModal('product-modal');
+                    hideModal('order-modal');
+                });
+            });
+
+            window.addEventListener('click', (e) => {
+                if (e.target.id === 'product-modal') hideModal('product-modal');
+                if (e.target.id === 'order-modal') hideModal('order-modal');
+            });
+
+            // 保存按钮
+            $('save-product-btn').addEventListener('click', saveProduct);
+            $('save-order-btn').addEventListener('click', saveOrder);
+
+            // 订单选择框
+            $('order-brand').addEventListener('change', () => {
+                $('order-code').value = '';
+                $('order-color').value = '';
+                $('order-size').value = '';
+                updateSelectOptions($('order-brand').value);
+            });
+
+            $('order-code').addEventListener('change', () => {
+                $('order-color').value = '';
+                $('order-size').value = '';
+                updateSelectOptions($('order-brand').value, $('order-code').value);
+            });
+
+            $('order-color').addEventListener('change', () => {
+                $('order-size').value = '';
+                updateSelectOptions($('order-brand').value, $('order-code').value, $('order-color').value);
+            });
+
+            $('add-to-order-btn').addEventListener('click', addItemToOrder);
+            $('add-size-btn').addEventListener('click', () => addSizeRow());
+
+            // 初始化品牌选择框
+            updateBrandSelects();
+
+            // 初始化渲染
+            addSizeRow();
+            renderInventoryList();
+            renderOrdersList();
+            renderStats();
+        }
+
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
