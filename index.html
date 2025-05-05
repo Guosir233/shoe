@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <link rel="manifest" href="/manifest.json">
+    <link rel="manifest" href="/shoe/manifest.json">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>鞋店管理系统</title>
     <style>
@@ -636,7 +636,7 @@
         window.addEventListener('load', async e => {
             if ('serviceWorker' in navigator) {
                 try {
-                    navigator.serviceWorker.register('/sw.js');
+                    navigator.serviceWorker.register('/shoe/sw.js');
                     console.log('SW registered');
 
                 } catch (error) {
